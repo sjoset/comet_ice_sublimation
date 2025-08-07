@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Oset"
+  given-names: "Shawn"
+  orcid: "https://orcid.org/0000-0001-6422-1038"
+title: "comet_ice_sublimation"
+version: 1.0.0
+date-released: 2025-02-01
+url: "https://github.com/sjoset/comet_ice_sublimation"
