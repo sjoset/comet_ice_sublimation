@@ -12,6 +12,7 @@ class SublimationModelInput:
     sub_solar_latitude: float
     num_latitude_gridpoints: int
     t_init_K: float | None
+    return_profile: bool
 
     def __str__(self):
         if self.t_init_K is not None:

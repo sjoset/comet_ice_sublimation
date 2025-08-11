@@ -2,6 +2,8 @@ from .heat_of_sublimation_result import *
 from ..physical_constants import *
 
 
+# "Vaporization of Comet Nuclei: Light Curves and Life Times", Cowan & A'Hearn, 1979
+# DOI: 10.1007/BF00897085
 def heat_of_sublimation_water(t_K: float) -> HeatOfSublimationResult:
     """
     Calculates the latent heat of sublimation and the vapor pressure of the

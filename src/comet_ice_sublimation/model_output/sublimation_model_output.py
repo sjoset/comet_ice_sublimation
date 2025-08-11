@@ -10,6 +10,6 @@ class SublimationModelResult:
     # log base 10 of above z_bar
     log10_z_bar: np.float64
 
-    # latitudes_rad: np.ndarray
-    # zs: np.ndarray
-    # temps_K: np.ndarray
+    latitudes_rad: np.ndarray | None
+    zs: np.ndarray | None
+    temps_K: np.ndarray | None

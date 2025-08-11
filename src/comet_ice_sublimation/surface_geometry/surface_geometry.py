@@ -2,6 +2,10 @@ import math
 from functools import cache
 
 
+# "Vaporization of Comet Nuclei: Light Curves and Life Times", Cowan & A'Hearn, 1979
+# DOI: 10.1007/BF00897085
+
+
 # this is purely geometric, depending on only the arctic latitude and the choice of latitude grid
 @cache
 def average_projection_factor(

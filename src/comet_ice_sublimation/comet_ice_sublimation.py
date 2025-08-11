@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 
-import csv
-import json
 import logging
 import sys
-from dataclasses import asdict
 
 import numpy as np
 
@@ -12,6 +9,7 @@ from comet_ice_sublimation.heat_of_sublimation import *
 from comet_ice_sublimation.model_input import *
 from comet_ice_sublimation.model_output import *
 from comet_ice_sublimation.model_runner import *
+from comet_ice_sublimation.model_saver.model_saver import save_model
 from comet_ice_sublimation.molecular_species import *
 from comet_ice_sublimation.parse_arguments import *
 from comet_ice_sublimation.surface_geometry import *
@@ -50,16 +48,12 @@ def main():
     )
 
     if args.output_config is not None:
-        out_dict = {**asdict(smi), **asdict(smr)}
-        if args.output_config.output_format == ModelOutputStorageFormat.json:
-            with open(args.output_config.output_path, "w") as json_file:
-                json.dump(out_dict, json_file)
-        else:
-            fieldnames = list(out_dict.keys())
-            with open(args.output_config.output_path, "w") as csv_file:
-                writer = csv.DictWriter(csv_file, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerow(out_dict)
+        save_model(
+            smi=smi,
+            smr=smr,
+            output_path=args.output_config.output_path,
+            out_format=args.output_config.output_format,
+        )
 
 
 if __name__ == "__main__":

@@ -27,6 +27,7 @@ class SublimationModelArguments:
     sub_solar_latitude: float
     num_latitude_gridpoints: int
     initial_temperature_kelvin: float | None
+    return_profile: bool
     output_config: ModelOutputConfig | None
     verbosity: int
 
@@ -93,6 +94,12 @@ def parse_arguments() -> SublimationModelArguments:
         "CO: 60 K\n",
     )
     parser.add_argument(
+        "--profiles",
+        type=bool,
+        default=False,
+        help="Return temperatures and sublimation rates as function of latitude",
+    )
+    parser.add_argument(
         "-o", metavar="filename", dest="filename", help="Save results to this file name"
     )
     parser.add_argument(
@@ -124,6 +131,7 @@ def parse_arguments() -> SublimationModelArguments:
         sub_solar_latitude=args.ssl,
         num_latitude_gridpoints=args.nlat,
         initial_temperature_kelvin=args.temp,
+        return_profile=args.profiles,
         output_config=output_config,
         verbosity=args.verbosity,
     )
@@ -141,6 +149,7 @@ def sublimation_model_input_from_args(
         sub_solar_latitude=args.sub_solar_latitude,
         num_latitude_gridpoints=args.num_latitude_gridpoints,
         t_init_K=args.initial_temperature_kelvin,
+        return_profile=args.return_profile,
     )
 
     if smi.visual_albedo < 0.0 or smi.visual_albedo > 1.0:

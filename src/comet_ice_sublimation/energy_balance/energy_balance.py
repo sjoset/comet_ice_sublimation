@@ -29,10 +29,22 @@ def converge_energy_balance(
     niter = 0
     cur_temp_K = t_init_K
 
+    # compute the incident solar flux
+    incident_solar_flux = (
+        solar_flux_1au_erg_per_cm2_per_second
+        * average_projection_factor
+        * (1.0 - smi.visual_albedo)
+        / smi.rh_au**2
+    )
+
     if average_projection_factor > 0:
         while niter < num_iterations_max:
             niter += 1
-            srir = energy_balance(smi, average_projection_factor, cur_temp_K)
+            srir = energy_balance(
+                smi=smi,
+                incident_solar_flux=incident_solar_flux,
+                t_K=cur_temp_K,
+            )
             if srir.converged:
                 break
             cur_temp_K = srir.t_K
@@ -46,69 +58,51 @@ def converge_energy_balance(
 
 def energy_balance(
     smi: SublimationModelInput,
-    frac: float,
+    incident_solar_flux: float,
     t_K: float,
 ) -> SublimationRateIterationResult:
-    """Calculate temperature and sublimation rate.
+    # Calculate temperature and sublimation rate, and whether or not this converged
 
+    heat_of_sub = heat_of_sublimation(species=smi.species, t_K=t_K)
 
-    Parameters
-    ----------
-    species: MolecularSpecies
-        Inputted species
-
-    Av : float
-        Visual albedo (Av > 0)
-
-    Air : float
-        Infrared albedo
-
-    rh_au: float
-        Heliocentric distance (au)
-
-    frac: float
-        Insolation scale factor of this obliquity and latitude
-
-    t_K: float
-        Estimated temperature at latitude (Kelvins).
-
-
-    Returns
-    -------
-    z : float
-        Sublimation rate.
-
-    temperature : float
-        Updated temperature estimate (Kelvins).
-
-    converged : bool
-        `True` if the energy equation is balanced.
-
-    """
-
-    hosd = heat_of_sublimation(species=smi.species, t_K=t_K)
-
-    root = 1 / math.sqrt(hosd.mass_g * 2 * math.pi * boltz)
+    root = 1 / math.sqrt(heat_of_sub.mass_g * 2 * math.pi * boltzmann_ergs_per_kelvin)
     root_t = math.sqrt(t_K)
-    sun = f0 * frac * (1.0 - smi.visual_albedo) / smi.rh_au**2
-    radiat = (1 - smi.infrared_albedo) * sigma * t_K**4
-    evap = root / root_t * hosd.pressure * hosd.latent_heat_of_vaporization
-    phi = radiat + evap - sun
-    z = max(evap / hosd.latent_heat_of_vaporization, 1e-30)
 
-    drad = 4 * radiat / t_K
-    x1 = hosd.pressure_prime * hosd.latent_heat_of_vaporization
-    x2 = hosd.pressure * hosd.latent_heat_of_vaporization_prime
+    thermal_radiated_flux = (
+        (1 - smi.infrared_albedo)
+        * stefan_boltzmann_sigma_ergs_percm2_per_kelvin4
+        * t_K**4
+    )
 
-    devap = root / root_t * (x1 + x2)
-    phipri = drad + devap
+    evaporation_loss_flux = (
+        root / root_t * heat_of_sub.pressure * heat_of_sub.latent_heat_of_vaporization
+    )
 
-    dt = math.copysign(min(10, abs(phi / phipri / 2)), phi / phipri)
+    energy_balance_flux = (
+        thermal_radiated_flux + evaporation_loss_flux - incident_solar_flux
+    )
+
+    z = max(evaporation_loss_flux / heat_of_sub.latent_heat_of_vaporization, 1e-30)
+
+    # temperature derivative
+    radiated_flux_derivative = 4 * thermal_radiated_flux / t_K
+
+    x1 = heat_of_sub.pressure_prime * heat_of_sub.latent_heat_of_vaporization
+    x2 = heat_of_sub.pressure * heat_of_sub.latent_heat_of_vaporization_prime
+
+    evaporation_flux_derivative = root / root_t * (x1 + x2)
+    energy_balance_derivative = radiated_flux_derivative + evaporation_flux_derivative
+
+    dt = math.copysign(
+        min(10, abs(energy_balance_flux / energy_balance_derivative / 2)),
+        energy_balance_flux / energy_balance_derivative,
+    )
     t_K -= dt
 
     convergence_threshold = 1e-6
     converged = (
-        abs(phi / sun) < convergence_threshold or abs(phi) < convergence_threshold
+        abs(energy_balance_flux / incident_solar_flux) < convergence_threshold
+        or abs(energy_balance_flux) < convergence_threshold
     )
 
     return SublimationRateIterationResult(z=z, t_K=t_K, converged=converged)

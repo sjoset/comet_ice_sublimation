@@ -62,10 +62,16 @@ def run_sublimation_model(smi: SublimationModelInput) -> SublimationModelResult:
     zbar = np.float64(np.trapezoid(z, dx=np.float64(delta_sin_latitude)) / 2.0)
     zlog = np.log10(zbar)
 
+    # Set these to None if the user isn't interested in them
+    if not smi.return_profile:
+        latitudes = None
+        z = None
+        temperatures = None
+
     return SublimationModelResult(
         z_bar=zbar,
         log10_z_bar=zlog,
-        # latitudes_rad=latitudes,
-        # zs=z,
-        # temps_K=temperatures,
+        latitudes_rad=latitudes,
+        zs=z,
+        temps_K=temperatures,
     )
