@@ -1,5 +1,6 @@
 # comet_ice_sublimation
-Based on "Vaporization of Comet Nuclei: Light Curves and Life Times", Cowan & A'Hearn, 1979, DOI: 10.1007/BF00897085
+Based on "Vaporization of Comet Nuclei: Light Curves and Life Times", Cowan & A'Hearn, 1979, DOI: 10.1007/BF00897085 .
+
 Modular rewrite based on https://github.com/Small-Bodies-Node/ice-sublimation for easy inclusion in other projects.
 
 This module uses the rapid rotator model of ice sublimation for comet nuclei where parallels of latitude are isothermal.
@@ -8,8 +9,7 @@ It integrates the energy balance equation to find equilibrium temperatures, then
 
 
 
-# Comet Ice Sublimation Model — Argument Parser
----
+# Features
 - Supports multiple molecular ice species (H₂O, CO₂, CO, mixed ices, etc.).
 - Configurable visual and infrared albedos.
 - Adjustable latitude grid resolution.
