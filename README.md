@@ -55,9 +55,9 @@ Run a sublimation calculation for water ice at 1 AU:
 comet_ice.py H2O --Av 0.04 --Air 0.5 --rh 1.0 --ssl 0
 ```
 
-Return full latitude profiles, saving results to CSV:
+Return full latitude profiles, saving results to JSON:
 ```bash
-comet_ice.py CO2 --Av 0.06 --Air 0.5 --rh 2.0 --ssl 20 --profiles True -o results.csv --format csv
+comet_ice.py CO2 --Av 0.06 --Air 0.5 --rh 2.0 --ssl 20 --profiles True -o results.json --format json
 ```
 
 ---
